@@ -8,7 +8,7 @@ const chatbotToggler = document.querySelector("#chatbot-toggler");
 const closeChatbot = document.querySelector("#close-chatbot");
 
 //API configuration
-const API_KEY = "AIzaSyBn24JIVVOvZ3o0bEsak3OfZCQGHspU44M"; 
+const API_KEY = "AIzaSyBn24JIVVOvZ3o0bEsak3OfZCQGHspU44M";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
 const userData = {
@@ -38,7 +38,7 @@ const generateBotResponse = async (incomingMessageDiv) => {
         role: "user",
         parts: [{ text: userData.message }, ...(userData.file.data ? [{ inline_data: userData.file }] : [])],
     });
-    
+
     // API request options
     const requestOptions = {
         method: "POST",
@@ -137,8 +137,8 @@ fileInput.addEventListener("change", (e) => {
             data: base64String,
             mime_type: file.type
         };
-        
-        fileInput.value = ""; 
+
+        fileInput.value = "";
     };
 
     reader.readAsDataURL(file);
@@ -173,24 +173,42 @@ fileInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!validImageTypes.includes(file.type)) {
+    const validDocTypes = [
+        'application/pdf',                                                          // .pdf
+        'application/msword',                                                       // .doc
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  // .docx
+        'application/vnd.ms-excel',                                                 // .xls
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',        // .xlsx
+        'application/vnd.ms-powerpoint',                                            // .ppt
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',// .pptx
+        'text/plain'
+    ];
+    const validFileTypes = [...validImageTypes, ...validDocTypes];
+    if (!validFileTypes.includes(file.type)) {
         await Swal.fire({
             icon: 'error',
             title: 'Lỗi',
-            text: 'Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WEBP)',
+            text: 'Chỉ chấp nhận ảnh hoặc tài liệu (JPEG, PNG, GIF, WEBP, PDF, DOC, DOCX, PPT, PPTX, TXT, XLS, XLSX)',
             confirmButtonText: 'OK'
         });
         resetFileInput();
         return;
     }
+    const fileIconImg = fileUploadWrapper.querySelector(".file-icon");
+    const fileNameSpan = fileUploadWrapper.querySelector(".file-name");
     const reader = new FileReader();
     reader.onload = (e) => {
-        fileUploadWrapper.querySelector("img").src = e.target.result;
+        if (validImageTypes.includes(file.type)) {
+            fileUploadWrapper.querySelector("img").src = e.target.result;
+        } else {
+            fileUploadWrapper.querySelector("img").src = "document-icon.png";
+        }
         fileUploadWrapper.classList.add("file-uploaded");
         const base64String = e.target.result.split(",")[1];
         userData.file = {
             data: base64String,
-            mime_type: file.type
+            mime_type: file.type,
+            name: file.name
         };
     };
     reader.readAsDataURL(file);
@@ -199,9 +217,9 @@ fileInput.addEventListener("change", async (e) => {
 function resetFileInput() {
     fileInput.value = "";
     fileUploadWrapper.classList.remove("file-uploaded");
-    fileUploadWrapper.querySelector("img").src = "#";
-    userData.file = { data: null, mime_type: null };
-    document.querySelector(".chat-form").reset();
+    fileUploadWrapper.querySelector(".file-icon").src = "";
+    fileUploadWrapper.querySelector(".file-name").textContent = "";
+    userData.file = { data: null, mime_type: null, name: null };
 }
 
 sendMessageButton.addEventListener("click", (e) => handleOutgoingMessage(e));
@@ -220,6 +238,47 @@ tailwind.config = {
         },
     },
 };
+
+//Full screen toggle
+const fullscreenToggle = document.getElementById("fullscreen-toggle");
+const mockChat = document.getElementById("mock-chat");
+
+fullscreenToggle.addEventListener("click", () => {
+    mockChat.classList.toggle("fullscreen-mode");
+    document.body.classList.toggle("fullscreen-active");
+
+    if (mockChat.classList.contains("fullscreen-mode")) {
+        fullscreenToggle.classList.add("fullscreen-close");
+        fullscreenToggle.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <span>Đóng</span>
+      `;
+    } else {
+        fullscreenToggle.classList.remove("fullscreen-close");
+        fullscreenToggle.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6v4m12 0h4v-4m0 12h-4v4m-12 0H6v-4"></path>
+        </svg>
+        <span>Phóng To</span>
+      `;
+    }
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && mockChat.classList.contains("fullscreen-mode")) {
+        mockChat.classList.remove("fullscreen-mode");
+        document.body.classList.remove("fullscreen-active");
+        fullscreenToggle.classList.remove("fullscreen-close");
+        fullscreenToggle.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6v4m12 0h4v-4m0 12h-4v4m-12 0H6v-4"></path>
+        </svg>
+        <span>Phóng To</span>
+      `;
+    }
+});
 
 // JavaScript cho hiệu ứng cuộn mượt và nút "Về đầu trang"
 document.addEventListener("DOMContentLoaded", () => {
