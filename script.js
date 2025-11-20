@@ -239,47 +239,6 @@ tailwind.config = {
     },
 };
 
-//Full screen toggle
-const fullscreenToggle = document.getElementById("fullscreen-toggle");
-const mockChat = document.getElementById("mock-chat");
-
-fullscreenToggle.addEventListener("click", () => {
-    mockChat.classList.toggle("fullscreen-mode");
-    document.body.classList.toggle("fullscreen-active");
-
-    if (mockChat.classList.contains("fullscreen-mode")) {
-        fullscreenToggle.classList.add("fullscreen-close");
-        fullscreenToggle.innerHTML = `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-        <span>Đóng</span>
-      `;
-    } else {
-        fullscreenToggle.classList.remove("fullscreen-close");
-        fullscreenToggle.innerHTML = `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6v4m12 0h4v-4m0 12h-4v4m-12 0H6v-4"></path>
-        </svg>
-        <span>Phóng To</span>
-      `;
-    }
-});
-
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && mockChat.classList.contains("fullscreen-mode")) {
-        mockChat.classList.remove("fullscreen-mode");
-        document.body.classList.remove("fullscreen-active");
-        fullscreenToggle.classList.remove("fullscreen-close");
-        fullscreenToggle.innerHTML = `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6v4m12 0h4v-4m0 12h-4v4m-12 0H6v-4"></path>
-        </svg>
-        <span>Phóng To</span>
-      `;
-    }
-});
-
 // JavaScript cho hiệu ứng cuộn mượt và nút "Về đầu trang"
 document.addEventListener("DOMContentLoaded", () => {
     // Hiển thị nút 'scroll to top' khi cuộn xuống
